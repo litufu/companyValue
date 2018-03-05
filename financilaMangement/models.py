@@ -9,15 +9,28 @@ class CompanyList(models.Model):
     industry = models.CharField('所属行业',max_length=10)
     timeToMarket = models.DateField('上市时间')
 
-class ReportType(models.Model):
-    type = models.CharField('报表类型代码',max_length=1,primary_key=True)
-    name = models.CharField('报表类型名称',max_length=10)
+    class Meta:
+        verbose_name = "公司列表"
+        verbose_name_plural = "公司列表清单"
 
+    def __str__(self):
+        return self.code
+
+class ReportType(models.Model):
+    type = models.CharField(verbose_name='报表类型代码',max_length=1,primary_key=True)
+    name = models.CharField(verbose_name='报表类型名称',max_length=10)
+
+    class Meta:
+        verbose_name = "报表类型"
+        verbose_name_plural = "报表类型清单"
+
+    def __str__(self):
+        return self.name
 
 class BalanceSheet(models.Model):
-    stk_cd = models.ForeignKey(CompanyList, on_delete=models.CASCADE)
+    stk_cd = models.ForeignKey(CompanyList, on_delete=models.CASCADE,verbose_name='股票代码')
     acc_per = models.DateField('会计期间')
-    typ_rep = models.ForeignKey(ReportType, on_delete=models.CASCADE)
+    typ_rep = models.ForeignKey(ReportType, on_delete=models.CASCADE,verbose_name='报表类型')
     cash = models.DecimalField('货币资金', max_digits=26, decimal_places=2, default=0.00)
     stlmnt_rsrv_fnd = models.DecimalField('结算备付金', max_digits=26, decimal_places=2, default=0.00)
     lnd_t_bnk = models.DecimalField('拆出资金', max_digits=26, decimal_places=2, default=0.00)
@@ -107,6 +120,9 @@ class BalanceSheet(models.Model):
     mnrty_eqty = models.DecimalField('少数股东权益', max_digits=26, decimal_places=2, default=0.00)
     ttl_ownrs_eqty = models.DecimalField('股东权益合计', max_digits=26, decimal_places=2, default=0.00)
     ttl_lblts_and_ownrs_eqty = models.DecimalField('负债和股东权益总计', max_digits=26, decimal_places=2, default=0.00)
+
+    def check_logic(self):
+        return self.ttl_lblts_and_ownrs_eqty == self.ttl_assts
 
 
 

@@ -1,11 +1,26 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse,Http404
+from django.template import loader
 from .models import CompanyList,ReportType,BalanceSheet
+
 
 # Create your views here.
 def index(request):
-    rprtyp_objects = ReportType.objects.all()
-    return HttpResponse("报表类型编码：{};报表类型名称：{}".format(rprtyp_objects[0].type,rprtyp_objects[0].name))
+    objs = BalanceSheet.objects.all()
+    exclude_fields = ('id',)
+    params = [f for f in BalanceSheet._meta.fields if f.name not in exclude_fields] #obj._meta.fields获取obj所有的字段对象
+    import collections
+    data = collections.OrderedDict()  #建立有序的字典
+    for parm in params:
+        values = [getattr(obj, parm.name) for obj in objs]
+        data[parm.verbose_name]=values
+
+    context = {
+        'data':data,
+    }
+    return render(request, 'financilaMangement/index.html', context)
+
+
 
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
